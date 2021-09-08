@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Mysql中的explain用法</title>
+    <url>/2021/08/31/MySQL%E4%B8%AD%E7%9A%84explain%E7%94%A8%E6%B3%95/</url>
+    <content><![CDATA[<h3 id="explain可以做什么？"><a href="#explain可以做什么？" class="headerlink" title="explain可以做什么？"></a>explain可以做什么？</h3><ul>
+<li>通过explain(执行计划)，可以模拟优化器执行SQL语句，从而可以很直观的了解到执行过程中出现性能问题，帮助优化SQL。</li>
+</ul>
+<h3 id="explain不能做什么？"><a href="#explain不能做什么？" class="headerlink" title="explain不能做什么？"></a>explain不能做什么？</h3><ul>
+<li>select之外的操作无法解释</li>
+<li>不会使用cache</li>
+<li>部分统计不精准，是估算的</li>
+<li>无法显示MySQL的优化内容</li>
+<li>无法展示促会发起、存储器的信息以及用户自定义函数对查询的影响</li>
+</ul>
+<h3 id="explain有哪些属性"><a href="#explain有哪些属性" class="headerlink" title="explain有哪些属性"></a>explain有哪些属性</h3><p><img src="2864885534-202c0878c1abf896.png" alt="explian属性"></p>
+<blockquote>
+<p>以上图片来自网络，如有侵权请与本人联系</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>Mysql</category>
+      </categories>
+      <tags>
+        <tag>Mysql</tag>
+        <tag>explain</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Git命令行cherry-pick和rebase</title>
+    <url>/2021/09/02/Git%E5%91%BD%E4%BB%A4%E8%A1%8Ccherry-pick%E5%92%8Crebase/</url>
+    <content><![CDATA[<h3 id="cherry-pick和rebase的作用"><a href="#cherry-pick和rebase的作用" class="headerlink" title="cherry-pick和rebase的作用"></a>cherry-pick和rebase的作用</h3><blockquote>
+<p>日常开发过程中，会创建各种分支，比如发布release之后，需要在release上开启hotfix以及v1.1版本，其中hotfix是针对当前已发布的版本做修复，而v1.1则进入了下一个迭代。你说巧不巧，产品经理说迭代版本v1.1上的功能点要搭顺风车在hotfix上一起发布。聪明的小伙伴肯定不是完成一个分支后拷贝到另一个分支啦。这里需要用到cherry-pick，或者rebase。</p>
+</blockquote>
+<p>首先谈谈cherry-pick, 这个命令行，可以将v1.1分支的commitA单个提交， 或者commitA~commitC的一个范围的提交同步到hotfix，命令行如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git checkout v1.1 # 切换迭代分支</span><br><span class="line">git log  # 查看已经提交的记录，找到提交的commit的hash值假设是 63f481be380c81d73436dcdfd7aeaa47563e896f</span><br><span class="line">git checkout hotfix # 切换到紧急版本分支</span><br><span class="line">git pull --rebase # 更新代码</span><br><span class="line">git cherry-pick 63f481be380c81d73436dcdfd7aeaa47563e896f # 把这个commit合并到hotfix</span><br><span class="line">(git cherry-pick 63f481be380c81d73436dcdfd7aeaa47563e896f 19f676839bd11b86897f7830223d3fd7751a9dc0 #也可以合并两个commit之间的所有提交)</span><br><span class="line">git push # 不要忘记push, 否则不会生效</span><br></pre></td></tr></table></figure>
+<p>rebase也可以做类似操作，如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">(git rebase [startpoint] [endpoint] --onto [branchName] # startpoint不会被包含在内)</span><br><span class="line">git rebase 63f481be380c81d73436dcdfd7aeaa47563e896f^ 19f676839bd11b86897f7830223d3fd7751a9dc0 --onto hotfix # 可以在commit后加一个^，代表它的前一次提交</span><br><span class="line"># 如果是从当前head到某个commit, [startpoint]是可以省略不填的</span><br></pre></td></tr></table></figure>
+<p>同时，rebase还有修改提交的commit的操作：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git rebase -i [startpoint] [endpoint] # i代表interactive用户可以在交互模式下编辑commit, startpoint同上可以省略</span><br><span class="line"></span><br><span class="line"># 进入编辑页面</span><br><span class="line">pick 771cfe4 opt</span><br><span class="line">pick fd4353a ot</span><br><span class="line">pick 19f6768 add visitors</span><br><span class="line">pick 77a8375 add visitors</span><br><span class="line">pick 63f481b add search</span><br><span class="line">pick 0c42e5b rm social</span><br><span class="line">pick 0faf25c add new page</span><br><span class="line"></span><br><span class="line">#默认pick(缩写p)提交是生效的，还有以下不同的操作：</span><br><span class="line">#reword：保留此commit，同时需要修改注释（缩写:r）</span><br><span class="line">#edit：保留此commit, 需要修改提交的内容以及注释（缩写:e）</span><br><span class="line">#squash：将此commit和前一个commit进行合并（缩写:s）</span><br><span class="line">#fixup：将此commit和前一个commit进行合并，不保留注释（缩写:f）</span><br><span class="line">#exec：执行shell（缩写:x）</span><br><span class="line">#drop：丢弃此commit，即从提交记录里剥离（缩写:d）</span><br><span class="line"></span><br><span class="line"># 根据实际需求，修改保存后</span><br><span class="line">git push</span><br><span class="line"></span><br><span class="line"># 最后查看提交的情况</span><br><span class="line">git log</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Git</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spring事务传播7种行为</title>
+    <url>/2021/09/08/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD7%E7%A7%8D%E8%A1%8C%E4%B8%BA/</url>
+    <content><![CDATA[<h3 id="事务的属性"><a href="#事务的属性" class="headerlink" title="事务的属性"></a>事务的属性</h3><ul>
+<li>原子性（Atomicity）：事务可以确保一系列的操作要么都成功，要么都失败，不会出现部分成功的情况。</li>
+<li>一致性（Consistency）：</li>
+</ul>
+<p>从Wikipedia引入一句解释：</p>
+<blockquote>
+<p><a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Consistency_(database_systems)">Consistency</a> ensures that a transaction can <strong>only bring the database from one valid state to another</strong>, maintaining database <a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Invariant_(computer_science)">invariants</a>: <strong>any data written to the database must be valid according to all defined rules, including <a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Integrity_constraints">constraints</a>, <a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Cascading_rollback">cascades</a>,<a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Database_trigger">triggers</a>, and any combination thereof.</strong> This prevents database corruption by an illegal transaction, but does <strong>not guarantee that a transaction is *correct*.</strong></p>
+</blockquote>
+<p>可以清晰理解到，事务一致性是通过AID三个属性来保障数据库能从一个正确的状态转义到另一个正确的状态。其中AID属性是前提，C是达到的目的。</p>
+<ul>
+<li>隔离性（Isolation）：不同事务之间对数据的操作是相互隔离的，不会相互影响导致数据遭到破坏。</li>
+<li>持久性（Durability）：事务的结果被写到持久化存储器中，一旦完成不会因为其他的错误导致变化。</li>
+</ul>
+<h3 id="Spring中事务的使用方式"><a href="#Spring中事务的使用方式" class="headerlink" title="Spring中事务的使用方式"></a>Spring中事务的使用方式</h3><ul>
+<li>通过代码的方式</li>
+</ul>
+<p>在代码逻辑种使用TransactionTemplate或者PlatformTransactionManager，对代码种存在的事务进行管理，好处是比较灵活，适合用来写一些通用的处理方法，并且回滚触发其他逻辑。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Resource</span></span><br><span class="line">PlatformTransactionManager transactionManager;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> Result <span class="title">insert</span><span class="params">()</span></span>&#123;</span><br><span class="line">    DefaultTransactionDefinition def = <span class="keyword">new</span> DefaultTransactionDefinition();</span><br><span class="line">        def.setPropagationBehavior(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">            status = <span class="keyword">this</span>.transactionManager.getTransaction(def);</span><br><span class="line">            <span class="comment">// 业务处理</span></span><br><span class="line">            <span class="keyword">this</span>.transactionManager.commit(status);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">this</span>.transactionManager.rollback(status);</span><br><span class="line">            <span class="comment">// 触发回滚的逻辑，比如增加日志，触发报警等等</span></span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过注解</li>
+</ul>
+<p>注解是通过代理的方式来实现的，好处是对业务代码无侵入，有7种事务传播行为，可以覆盖日常开发场景。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Transactional(rollbackFor = Exception.class)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insert</span><span class="params">(Data data)</span></span>&#123; <span class="comment">// 方法必须是public，注解才能生效</span></span><br><span class="line">    <span class="keyword">boolean</span> ret = mapper1.insert(data);</span><br><span class="line">    <span class="keyword">if</span>(!ret)&#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ret = mapper2.update(data);</span><br><span class="line">    <span class="keyword">if</span>(!ret)&#123;</span><br><span class="line">        <span class="comment">// 失败抛出异常，会导致mapper1.insert(data)回滚</span></span><br><span class="line">       <span class="keyword">throw</span> <span class="keyword">new</span> Service(<span class="string">&quot;Failed to update data.&quot;</span>);     </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="事务的传播行为"><a href="#事务的传播行为" class="headerlink" title="事务的传播行为"></a>事务的传播行为</h3><p>业务复杂一点的话都需要对函数进行拆分，一个函数只做一个类型的事情，所以不同的函数在相互调用的时候，需要控制对应的事务执行。</p>
+<ul>
+<li>PROPAGATION_REQUIRED<br>Spring默认的传播机制，外层方法调用内层方法，内层会被包含在外层事务一起执行和回滚，如果外层无事务，则内层会创建事务执行</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcA</span><span class="params">()</span></span>&#123; </span><br><span class="line">    funcB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcB</span><span class="params">()</span></span>&#123; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果单独调用funcB()，会以事务执行；如果funcA()调用funcB()，则funcB()会加入到funcA()事务中。</p>
+<ul>
+<li>PROPAGATION_REQUIRED_NEW<br>使用 JtaTransactionManager作为事务管理器。每个方法会创建一个新的事务，如果外层有事务会被挂起，执行完内部才执行外部。内外的事务是相互独立不相互干扰的。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcA</span><span class="params">()</span></span>&#123; </span><br><span class="line">    funcB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED_NEW)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcB</span><span class="params">()</span></span>&#123; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果单独调用funcB()，会以事务执行；但是如果funcA()调用funcB()， 那么外层的funcA()会被挂起，直到funcB()执行完，才恢复funcA()事务，并且funcB()事务执行成功与否，不会影响到func()事务的执行。</p>
+<ul>
+<li>PROPAGATION_SUPPORT<br>外层如果没有事务，那么内层以非事务执行，否则会以事务执行。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcA</span><span class="params">()</span></span>&#123; </span><br><span class="line">    funcB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED_SUPPORT)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcB</span><span class="params">()</span></span>&#123; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>单独调用funcB(), 会以非事务执行；funcA()调用funcB(), 那么funcB()会加入到funcA()的事务中，如果funcA()无事务，那么调用funcB()也没有事务了。</p>
+<ul>
+<li>PROPAGATION_NOT_SUPPORT<br>使用JtaTransactionManager作为事务管理器。明确标注不支持事务，单独运行时以非事务执行，若果外层调用方法有事务，则会挂起外层事务，直到内层执行完才恢复外层事务。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcA</span><span class="params">()</span></span>&#123; </span><br><span class="line">    funcB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED_NOT_SUPPORT)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcB</span><span class="params">()</span></span>&#123; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>单独执行funcB()无事务，如果funcA()调用funcB()，那么funcA()中的事务会被挂起，等funcB()执行完，才恢复事务继续commit或者rollback</p>
+<ul>
+<li><p>PROPAGATION_NEVER<br>强烈的拒绝使用事务，如果你敢用，它就敢抛异常，应用场景应该是为了避免事务使用，在开发阶段可以确定。</p>
+</li>
+<li><p>PROPAGATION_MANDATORY<br>和PROPAGATION_NEVER不同，如果外层你不用事务，就抛异常。加了该注解的方法，无法单独运行，需要有事务的方法去调用，否则会抛IllegalTransactionStateException。</p>
+</li>
+<li><p>PROPAGATION_NESTED</p>
+<p>使用JDBC 3.0驱动时,仅仅支持DataSourceTransactionManager作为事务管理器。使用PROPAGATION_NESTED，需要把PlatformTransactionManager的nestedTransactionAllowed属性设为true(默认为false)。如果是单独调用，则和PROPAGATION_REQUIRED一样；如果外层有事务，则以嵌套的方式执行。并且内层事务在捕获了异常后进行回滚，不会导致外层的回滚；如果异常抛出了，是会导致外层事务回滚的。但是外层一旦失败，会导致内层回滚。</p>
+</li>
+</ul>
+<blockquote>
+<p>以上方法之间的调用，如果是在同一个类里面，事务会失效。因为事务注解是基于动态代理实现的，根据spring的bean的管理，同一个bean是走原始的方法调用，不会被TransactionalInterceptor拦截而加入到事务里面。常见处理办法是：一、将方法放在两个类；二、注入自己，通过注入的对象调用。</p>
+</blockquote>
+<h3 id="各种TransactionManager"><a href="#各种TransactionManager" class="headerlink" title="各种TransactionManager"></a>各种TransactionManager</h3><ul>
+<li><em>PlatformTransactionManager</em>(平台事务管理器)</li>
+</ul>
+<p>事务管理的核心接口，Spring为不同的持久化框架(ORM)提供了不同的接口实现，主要有：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 根据事务的传播行为，返回一个active的事务，或者重新创建一个</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function">TransactionStatus <span class="title">getTransaction</span><span class="params">(<span class="meta">@Nullable</span> TransactionDefinition definition)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 提交事务 </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">commit</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 事务回滚</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">rollback</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><em>DataSourceTransactionManager</em></li>
+</ul>
+<p>Spring JDBC或者ibatis会使用到，实际上也是实现了PlatformTransactionManager接口。主要方法有：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 获取连接，设置隔离级别</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doBegin</span><span class="params">(Object transaction, TransactionDefinition definition)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 挂起事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">doSuspend</span><span class="params">(Object transaction)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 恢复事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doResume</span><span class="params">(<span class="meta">@Nullable</span> Object transaction, Object suspendedResources)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 提交事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doCommit</span><span class="params">(DefaultTransactionStatus status)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 回滚事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doRollback</span><span class="params">(DefaultTransactionStatus status)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 设置回滚的转态，只在提交之前做校验</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doSetRollbackOnly</span><span class="params">(DefaultTransactionStatus status)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 回滚事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doCleanupAfterCompletion</span><span class="params">(Object transaction)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><em>HibernateTransactionManager</em></li>
+</ul>
+<p><em>Hibernate3.0</em>会使用到。核心方法同上，是为了适配Hibernate而存在。</p>
+<ul>
+<li><em>JpaTransactionManager</em></li>
+</ul>
+<p>全称Persistence API。JPA通过JDK 5.0注解或XML描述对象－关系表的映射关系，并将运行期的实体对象持久化到数据库。</p>
+<ul>
+<li><em>JdoTransactionManager</em></li>
+</ul>
+<p>JDO(Java Data Object )是Java对象持久化的新的规范，也是一个用于存取某种数据仓库中的对象的标准化API。</p>
+<ul>
+<li><em>JtaTransactionManager</em></li>
+</ul>
+<p>即Java Transaction API，译为Java事务API。</p>
+<p>JTA允许应用程序执行分布式事务处理——在两个或多个网络计算机资源上访问并且更新数据。JDBC驱动程序的JTA支持极大地增强了数据访问能力。</p>
+]]></content>
+      <categories>
+        <category>Spring</category>
+      </categories>
+      <tags>
+        <tag>事务</tag>
+        <tag>Spring</tag>
+      </tags>
+  </entry>
+</search>

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>Spring事务传播7种行为 | 大道技术博客</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="事务,Spring" />
+    
+    <meta name="description" content="事务的属性 原子性（Atomicity）：事务可以确保一系列的操作要么都成功，要么都失败，不会出现部分成功的情况。 一致性（Consistency）：  从Wikipedia引入一句解释：  Consistency ensures that a transaction can only bring the database from one valid state to another, main">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring事务传播7种行为">
+<meta property="og:url" content="https://idadao.github.io/2021/09/08/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD7%E7%A7%8D%E8%A1%8C%E4%B8%BA/index.html">
+<meta property="og:site_name" content="大道技术博客">
+<meta property="og:description" content="事务的属性 原子性（Atomicity）：事务可以确保一系列的操作要么都成功，要么都失败，不会出现部分成功的情况。 一致性（Consistency）：  从Wikipedia引入一句解释：  Consistency ensures that a transaction can only bring the database from one valid state to another, main">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg?cs=srgb&dl=pexels-pixabay-459225.jpg&fm=jpg">
+<meta property="article:published_time" content="2021-09-08T03:28:31.000Z">
+<meta property="article:modified_time" content="2021-09-08T08:04:53.128Z">
+<meta property="article:author" content="Dadao">
+<meta property="article:tag" content="事务">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg?cs=srgb&dl=pexels-pixabay-459225.jpg&fm=jpg">
+    
+
+    
+
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/titillium-web/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+<script src="/libs/jquery/3.5.0/jquery.min.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+    
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                    <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Git/">Git</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Mysql/">Mysql</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Spring/">Spring</a></li></ul>
+                                
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Spring/">Spring</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-Spring事务传播7种行为" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        Spring事务传播7种行为
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+        <!-- 不蒜子统计 -->
+        <span id="busuanzi_container_page_pv" style='display:none' class="article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+
+  <div class="article-date">
+    <i class="fa fa-calendar"></i>
+    <a href="/2021/09/08/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD7%E7%A7%8D%E8%A1%8C%E4%B8%BA/" class="article-date">
+       <time datetime="2021-09-08T03:28:31.000Z" itemprop="datePublished">2021-09-08</time>
+    </a>
+  </div>
+
+
+<div class="article-date">
+  <i class="fa fa-calendar-plus-o"></i>
+  <a href="/2021/09/08/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD7%E7%A7%8D%E8%A1%8C%E4%B8%BA/" class="article-date">
+     <time datetime="2021-09-08T08:04:53.128Z" itemprop="dateModified">2021-09-08</time>
+  </a>
+</div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Spring/" rel="tag">Spring</a>, <a class="tag-link-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            
+
+            
+
+            
+
+            <h3 id="事务的属性"><a href="#事务的属性" class="headerlink" title="事务的属性"></a>事务的属性</h3><ul>
+<li>原子性（Atomicity）：事务可以确保一系列的操作要么都成功，要么都失败，不会出现部分成功的情况。</li>
+<li>一致性（Consistency）：</li>
+</ul>
+<p>从Wikipedia引入一句解释：</p>
+<blockquote>
+<p><a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Consistency_(database_systems)">Consistency</a> ensures that a transaction can <strong>only bring the database from one valid state to another</strong>, maintaining database <a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Invariant_(computer_science)">invariants</a>: <strong>any data written to the database must be valid according to all defined rules, including <a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Integrity_constraints">constraints</a>, <a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Cascading_rollback">cascades</a>,<a href="https://link.zhihu.com/?target=https://en.wikipedia.org/wiki/Database_trigger">triggers</a>, and any combination thereof.</strong> This prevents database corruption by an illegal transaction, but does <strong>not guarantee that a transaction is *correct*.</strong></p>
+</blockquote>
+<p>可以清晰理解到，事务一致性是通过AID三个属性来保障数据库能从一个正确的状态转义到另一个正确的状态。其中AID属性是前提，C是达到的目的。</p>
+<ul>
+<li>隔离性（Isolation）：不同事务之间对数据的操作是相互隔离的，不会相互影响导致数据遭到破坏。</li>
+<li>持久性（Durability）：事务的结果被写到持久化存储器中，一旦完成不会因为其他的错误导致变化。</li>
+</ul>
+<h3 id="Spring中事务的使用方式"><a href="#Spring中事务的使用方式" class="headerlink" title="Spring中事务的使用方式"></a>Spring中事务的使用方式</h3><ul>
+<li>通过代码的方式</li>
+</ul>
+<p>在代码逻辑种使用TransactionTemplate或者PlatformTransactionManager，对代码种存在的事务进行管理，好处是比较灵活，适合用来写一些通用的处理方法，并且回滚触发其他逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Resource</span></span><br><span class="line">PlatformTransactionManager transactionManager;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> Result <span class="title">insert</span><span class="params">()</span></span>&#123;</span><br><span class="line">    DefaultTransactionDefinition def = <span class="keyword">new</span> DefaultTransactionDefinition();</span><br><span class="line">        def.setPropagationBehavior(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">            status = <span class="keyword">this</span>.transactionManager.getTransaction(def);</span><br><span class="line">            <span class="comment">// 业务处理</span></span><br><span class="line">            <span class="keyword">this</span>.transactionManager.commit(status);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">this</span>.transactionManager.rollback(status);</span><br><span class="line">            <span class="comment">// 触发回滚的逻辑，比如增加日志，触发报警等等</span></span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过注解</li>
+</ul>
+<p>注解是通过代理的方式来实现的，好处是对业务代码无侵入，有7种事务传播行为，可以覆盖日常开发场景。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional(rollbackFor = Exception.class)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insert</span><span class="params">(Data data)</span></span>&#123; <span class="comment">// 方法必须是public，注解才能生效</span></span><br><span class="line">    <span class="keyword">boolean</span> ret = mapper1.insert(data);</span><br><span class="line">    <span class="keyword">if</span>(!ret)&#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ret = mapper2.update(data);</span><br><span class="line">    <span class="keyword">if</span>(!ret)&#123;</span><br><span class="line">        <span class="comment">// 失败抛出异常，会导致mapper1.insert(data)回滚</span></span><br><span class="line">       <span class="keyword">throw</span> <span class="keyword">new</span> Service(<span class="string">&quot;Failed to update data.&quot;</span>);     </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="事务的传播行为"><a href="#事务的传播行为" class="headerlink" title="事务的传播行为"></a>事务的传播行为</h3><p>业务复杂一点的话都需要对函数进行拆分，一个函数只做一个类型的事情，所以不同的函数在相互调用的时候，需要控制对应的事务执行。</p>
+<ul>
+<li>PROPAGATION_REQUIRED<br>Spring默认的传播机制，外层方法调用内层方法，内层会被包含在外层事务一起执行和回滚，如果外层无事务，则内层会创建事务执行</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcA</span><span class="params">()</span></span>&#123; </span><br><span class="line">    funcB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcB</span><span class="params">()</span></span>&#123; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果单独调用funcB()，会以事务执行；如果funcA()调用funcB()，则funcB()会加入到funcA()事务中。</p>
+<ul>
+<li>PROPAGATION_REQUIRED_NEW<br>使用 JtaTransactionManager作为事务管理器。每个方法会创建一个新的事务，如果外层有事务会被挂起，执行完内部才执行外部。内外的事务是相互独立不相互干扰的。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcA</span><span class="params">()</span></span>&#123; </span><br><span class="line">    funcB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED_NEW)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcB</span><span class="params">()</span></span>&#123; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果单独调用funcB()，会以事务执行；但是如果funcA()调用funcB()， 那么外层的funcA()会被挂起，直到funcB()执行完，才恢复funcA()事务，并且funcB()事务执行成功与否，不会影响到func()事务的执行。</p>
+<ul>
+<li>PROPAGATION_SUPPORT<br>外层如果没有事务，那么内层以非事务执行，否则会以事务执行。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcA</span><span class="params">()</span></span>&#123; </span><br><span class="line">    funcB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED_SUPPORT)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcB</span><span class="params">()</span></span>&#123; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>单独调用funcB(), 会以非事务执行；funcA()调用funcB(), 那么funcB()会加入到funcA()的事务中，如果funcA()无事务，那么调用funcB()也没有事务了。</p>
+<ul>
+<li>PROPAGATION_NOT_SUPPORT<br>使用JtaTransactionManager作为事务管理器。明确标注不支持事务，单独运行时以非事务执行，若果外层调用方法有事务，则会挂起外层事务，直到内层执行完才恢复外层事务。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcA</span><span class="params">()</span></span>&#123; </span><br><span class="line">    funcB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional(propagation = Propagation.REQUIRED_NOT_SUPPORT)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">funcB</span><span class="params">()</span></span>&#123; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>单独执行funcB()无事务，如果funcA()调用funcB()，那么funcA()中的事务会被挂起，等funcB()执行完，才恢复事务继续commit或者rollback</p>
+<ul>
+<li><p>PROPAGATION_NEVER<br>强烈的拒绝使用事务，如果你敢用，它就敢抛异常，应用场景应该是为了避免事务使用，在开发阶段可以确定。</p>
+</li>
+<li><p>PROPAGATION_MANDATORY<br>和PROPAGATION_NEVER不同，如果外层你不用事务，就抛异常。加了该注解的方法，无法单独运行，需要有事务的方法去调用，否则会抛IllegalTransactionStateException。</p>
+</li>
+<li><p>PROPAGATION_NESTED</p>
+<p>使用JDBC 3.0驱动时,仅仅支持DataSourceTransactionManager作为事务管理器。使用PROPAGATION_NESTED，需要把PlatformTransactionManager的nestedTransactionAllowed属性设为true(默认为false)。如果是单独调用，则和PROPAGATION_REQUIRED一样；如果外层有事务，则以嵌套的方式执行。并且内层事务在捕获了异常后进行回滚，不会导致外层的回滚；如果异常抛出了，是会导致外层事务回滚的。但是外层一旦失败，会导致内层回滚。</p>
+</li>
+</ul>
+<blockquote>
+<p>以上方法之间的调用，如果是在同一个类里面，事务会失效。因为事务注解是基于动态代理实现的，根据spring的bean的管理，同一个bean是走原始的方法调用，不会被TransactionalInterceptor拦截而加入到事务里面。常见处理办法是：一、将方法放在两个类；二、注入自己，通过注入的对象调用。</p>
+</blockquote>
+<h3 id="各种TransactionManager"><a href="#各种TransactionManager" class="headerlink" title="各种TransactionManager"></a>各种TransactionManager</h3><ul>
+<li><em>PlatformTransactionManager</em>(平台事务管理器)</li>
+</ul>
+<p>事务管理的核心接口，Spring为不同的持久化框架(ORM)提供了不同的接口实现，主要有：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 根据事务的传播行为，返回一个active的事务，或者重新创建一个</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function">TransactionStatus <span class="title">getTransaction</span><span class="params">(<span class="meta">@Nullable</span> TransactionDefinition definition)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 提交事务 </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">commit</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 事务回滚</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">rollback</span><span class="params">(TransactionStatus status)</span> <span class="keyword">throws</span> TransactionException</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><em>DataSourceTransactionManager</em></li>
+</ul>
+<p>Spring JDBC或者ibatis会使用到，实际上也是实现了PlatformTransactionManager接口。主要方法有：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 获取连接，设置隔离级别</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doBegin</span><span class="params">(Object transaction, TransactionDefinition definition)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 挂起事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">doSuspend</span><span class="params">(Object transaction)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 恢复事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doResume</span><span class="params">(<span class="meta">@Nullable</span> Object transaction, Object suspendedResources)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 提交事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doCommit</span><span class="params">(DefaultTransactionStatus status)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 回滚事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doRollback</span><span class="params">(DefaultTransactionStatus status)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 设置回滚的转态，只在提交之前做校验</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doSetRollbackOnly</span><span class="params">(DefaultTransactionStatus status)</span></span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 回滚事务</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doCleanupAfterCompletion</span><span class="params">(Object transaction)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><em>HibernateTransactionManager</em></li>
+</ul>
+<p><em>Hibernate3.0</em>会使用到。核心方法同上，是为了适配Hibernate而存在。</p>
+<ul>
+<li><em>JpaTransactionManager</em></li>
+</ul>
+<p>全称Persistence API。JPA通过JDK 5.0注解或XML描述对象－关系表的映射关系，并将运行期的实体对象持久化到数据库。</p>
+<ul>
+<li><em>JdoTransactionManager</em></li>
+</ul>
+<p>JDO(Java Data Object )是Java对象持久化的新的规范，也是一个用于存取某种数据仓库中的对象的标准化API。</p>
+<ul>
+<li><em>JtaTransactionManager</em></li>
+</ul>
+<p>即Java Transaction API，译为Java事务API。</p>
+<p>JTA允许应用程序执行分布式事务处理——在两个或多个网络计算机资源上访问并且更新数据。JDBC驱动程序的JTA支持极大地增强了数据访问能力。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://idadao.github.io/2021/09/08/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD7%E7%A7%8D%E8%A1%8C%E4%B8%BA/" data-id="cktb8kvkw000f3gfrd44h9sqj" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Dadao"
+        },
+        "headline": "Spring事务传播7种行为",
+        "image": "https://idadao.github.iohttps://images.pexels.com/photos/459225/pexels-photo-459225.jpeg?cs=srgb&dl=pexels-pixabay-459225.jpg&fm=jpg",
+        "keywords": "事务 Spring",
+        "genre": "Spring",
+        "datePublished": "2021-09-08",
+        "dateCreated": "2021-09-08",
+        "dateModified": "2021-09-08",
+        "url": "https://idadao.github.io/2021/09/08/Spring事务传播7种行为/",
+        "description": "事务的属性
+原子性（Atomicity）：事务可以确保一系列的操作要么都成功，要么都失败，不会出现部分成功的情况。
+一致性（Consistency）：
+
+从Wikipedia引入一句解释：
+
+Consistency ensures that a transaction can only bring the database from one valid state to another, main",
+        "wordCount": 776
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/2021/09/02/Git%E5%91%BD%E4%BB%A4%E8%A1%8Ccherry-pick%E5%92%8Crebase/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">Git命令行cherry-pick和rebase</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/09/08/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD7%E7%A7%8D%E8%A1%8C%E4%B8%BA/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg?cs=srgb&dl=pexels-pixabay-459225.jpg&fm=jpg)" alt="Spring事务传播7种行为" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Spring/">Spring</a></p>
+                            <p class="item-title"><a href="/2021/09/08/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD7%E7%A7%8D%E8%A1%8C%E4%B8%BA/" class="title">Spring事务传播7种行为</a></p>
+                            <p class="item-date"><time datetime="2021-09-08T03:28:31.000Z" itemprop="datePublished">2021-09-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/09/02/Git%E5%91%BD%E4%BB%A4%E8%A1%8Ccherry-pick%E5%92%8Crebase/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://images.pexels.com/photos/9754/mountains-clouds-forest-fog.jpg?cs=srgb&dl=pexels-creative-vix-9754.jpg&fm=jpg)" alt="Git命令行cherry-pick和rebase" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Git/">Git</a></p>
+                            <p class="item-title"><a href="/2021/09/02/Git%E5%91%BD%E4%BB%A4%E8%A1%8Ccherry-pick%E5%92%8Crebase/" class="title">Git命令行cherry-pick和rebase</a></p>
+                            <p class="item-date"><time datetime="2021-09-02T04:00:39.000Z" itemprop="datePublished">2021-09-02</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2021/08/31/MySQL%E4%B8%AD%E7%9A%84explain%E7%94%A8%E6%B3%95/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://images.pexels.com/photos/998653/pexels-photo-998653.jpeg?cs=srgb&dl=pexels-francesco-ungaro-998653.jpg&fm=jpg)" alt="Mysql中的explain用法" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Mysql/">Mysql</a></p>
+                            <p class="item-title"><a href="/2021/08/31/MySQL%E4%B8%AD%E7%9A%84explain%E7%94%A8%E6%B3%95/" class="title">Mysql中的explain用法</a></p>
+                            <p class="item-date"><time datetime="2021-08-31T08:24:57.000Z" itemprop="datePublished">2021-08-31</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Spring/">Spring</a><span class="category-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/" rel="tag">Git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mysql/" rel="tag">Mysql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/" rel="tag">Spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/explain/" rel="tag">explain</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BA%8B%E5%8A%A1/" rel="tag">事务</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/Mysql/" style="font-size: 10px;">Mysql</a> <a href="/tags/Spring/" style="font-size: 10px;">Spring</a> <a href="/tags/explain/" style="font-size: 10px;">explain</a> <a href="/tags/%E4%BA%8B%E5%8A%A1/" style="font-size: 10px;">事务</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2021 Dadao</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+		<div style="text-align:center">
+			
+				<!-- 不蒜子统计 -->
+				<span id="busuanzi_container_site_pv">
+						本站总访问量<span id="busuanzi_value_site_pv"></span>次
+				</span>
+				<span class="post-meta-divider">|</span>
+				<span id="busuanzi_container_site_uv" style='display:none'>
+						本站访客数<span id="busuanzi_value_site_uv"></span>人
+				</span>
+				<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+		 
+		</div>
+    </div>
+</footer>
+
+
+
+    </div>
+    
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'https://idadao.github.io/2021/09/08/Spring%E4%BA%8B%E5%8A%A1%E4%BC%A0%E6%92%AD7%E7%A7%8D%E8%A1%8C%E4%B8%BA/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+
+    
+    
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+</body>
+</html>
